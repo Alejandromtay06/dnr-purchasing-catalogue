@@ -1,0 +1,13 @@
+{
+  "updated": "2026-09-15",
+  "items": [
+    {
+      "id": "example-cards",
+      "name": "EXAMPLE — Business cards (edit or delete this)",
+      "category": "Print",
+      "spec": "16pt uncoated matte, 3.5 x 2 in, full colour both sides, DNI navy. Name, title, property, tracked phone, property email.",
+      "note": "This row was created as a worked example so the shape is obvious. The figures below are placeholders, not quotes. Replace them with real numbers or delete the whole item."
+    }
+  ],
+  "vendors": []
+}
