@@ -44,7 +44,8 @@ GitHub Pages picks the commit up on its own.
 
 ## How to change the catalogue
 
-1. Open the live page and click **Unlock to edit**
+1. Open the live page. The black dock at the bottom holds the actions: add
+   item, unlock, zoom, back to top. Click the padlock, **Unlock to edit**
 2. Enter your first name and the team password. The name is remembered on
    that device; the password until the tab is closed
 3. Add or edit items and vendors the normal way

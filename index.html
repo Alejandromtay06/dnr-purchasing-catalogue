@@ -442,14 +442,14 @@ body{ overflow-x:hidden; }
 .dni-index > li strong{ font-weight:500; color:var(--text-primary); }
 
 
-/* ---------- dock ---------- */
+/* ---------- dock (DNR: mine black, dynamite signal, square) ---------- */
 body{ padding-bottom:128px; }
 .dock-wrap{ position:fixed; left:0; right:0; bottom:18px; display:flex; justify-content:center; pointer-events:none; z-index:50; padding:0 16px; }
 .dock{
-  pointer-events:auto; display:flex; align-items:flex-end; gap:14px; height:76px; padding:0 14px 10px;
-  border-radius:24px; background:rgba(248,243,240,0.55);
-  backdrop-filter:blur(14px) saturate(1.2); -webkit-backdrop-filter:blur(14px) saturate(1.2);
-  border:2px solid rgba(255,255,255,0.45); box-shadow:0 20px 50px rgba(14,16,20,0.28);
+  pointer-events:auto; display:flex; align-items:flex-end; gap:12px; height:76px; padding:0 12px 10px;
+  border-radius:0; background:rgba(14,16,20,0.92);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--dni-rule-on-dark); box-shadow:0 20px 50px rgba(14,16,20,0.45);
   transform:translateY(120px); opacity:0; animation:dockIn .6s cubic-bezier(.2,.9,.3,1.08) .1s forwards;
 }
 @keyframes dockIn{ to{ transform:none; opacity:1; } }
@@ -460,34 +460,35 @@ body{ padding-bottom:128px; }
 }
 .dock-item[hidden]{ display:none!important; }
 .dock-tile{
-  width:100%; height:100%; border-radius:30%; display:flex; align-items:center; justify-content:center;
-  color:#fff; box-shadow:0 8px 20px rgba(14,16,20,0.28); position:relative; overflow:hidden;
-  transition:transform .25s cubic-bezier(.2,1.4,.4,1), background .25s;
+  width:100%; height:100%; border-radius:0; display:flex; align-items:center; justify-content:center;
+  background:var(--dni-mine-light); color:var(--dni-dynamite);
+  border:1px solid var(--dni-rule-on-dark); box-shadow:0 8px 20px rgba(0,0,0,0.35);
+  position:relative; overflow:hidden;
+  transition:transform .25s cubic-bezier(.2,1.4,.4,1), background .2s, color .2s, border-color .2s;
 }
-.dock-tile::after{ content:""; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,.26),transparent 60%); opacity:.5; transition:opacity .2s; }
-.dock-item:hover .dock-tile{ transform:translateY(-8px); }
+.dock-tile::after{ content:""; position:absolute; inset:0; background:linear-gradient(135deg,rgba(248,243,240,.10),transparent 60%); opacity:.6; transition:opacity .2s; }
+.dock-item:hover .dock-tile{ transform:translateY(-8px); background:var(--dni-dynamite); color:var(--dni-mine-dark); border-color:var(--dni-dynamite); }
 .dock-item:hover .dock-tile::after{ opacity:1; }
 .dock-item:active .dock-tile{ transform:translateY(2px) scale(.96); }
 .dock-tile svg{ width:46%; height:46%; transition:transform .25s cubic-bezier(.2,1.4,.4,1); }
 .dock-item:hover .dock-tile svg{ transform:scale(1.1); }
 .dock-tip{
   position:absolute; left:50%; bottom:calc(100% + 14px); transform:translate(-50%,10px) scale(.8); opacity:0;
-  background:rgba(14,16,20,.9); color:#fff; font-family:var(--font-mono); font-weight:500; font-size:11px; line-height:1;
-  letter-spacing:.06em; text-transform:uppercase; padding:7px 9px; border-radius:6px; white-space:nowrap;
-  pointer-events:none; backdrop-filter:blur(4px); transition:opacity .2s, transform .25s cubic-bezier(.2,1.2,.4,1);
+  background:var(--dni-dynamite); color:var(--dni-mine-dark); font-family:var(--font-mono); font-weight:500; font-size:11px; line-height:1;
+  letter-spacing:.06em; text-transform:uppercase; padding:7px 9px; border-radius:0; white-space:nowrap;
+  pointer-events:none; transition:opacity .2s, transform .25s cubic-bezier(.2,1.2,.4,1);
 }
 .dock-item:hover .dock-tip, .dock-item:focus-visible .dock-tip{ opacity:1; transform:translate(-50%,0) scale(1); }
-.dock-dot{ position:absolute; left:50%; bottom:-7px; width:4px; height:4px; border-radius:50%; background:rgba(14,16,20,.35); transform:translateX(-50%); transition:transform .2s, background .2s; }
+.dock-dot{ position:absolute; left:50%; bottom:-7px; width:4px; height:4px; border-radius:0; background:rgba(248,243,240,.35); transform:translateX(-50%); transition:transform .2s, background .2s; }
 .dock-item.on .dock-dot{ background:var(--dni-dynamite); transform:translateX(-50%) scale(1.6); }
-.dock-item:focus-visible{ outline:2px solid var(--dni-silk-medium); outline-offset:4px; border-radius:30%; }
-.tile-add{ background:var(--dni-silk-medium); }
-.tile-lock{ background:var(--dni-mine-light); }
-.dock-item.on .tile-lock{ background:var(--dni-leaf-medium); }
+.dock-item.on .dock-tile{ background:var(--dni-dynamite); color:var(--dni-mine-dark); border-color:var(--dni-dynamite); }
+.dock-item.on:hover .dock-tile{ background:var(--dni-sand-light); border-color:var(--dni-sand-light); }
+.dock-item:focus-visible{ outline:2px solid var(--dni-dynamite); outline-offset:4px; }
 .dock-item.on .ico-locked, .dock-item:not(.on) .ico-open{ display:none; }
-.tile-dl{ background:var(--dni-dirt-medium); }
-.tile-top{ background:var(--dni-silk-dark); }
+.dock-zoom-badge{ position:absolute; right:-4px; top:-4px; min-width:18px; height:18px; padding:0 4px; font-family:var(--font-mono); font-size:9px; line-height:18px; letter-spacing:.02em; background:var(--dni-dynamite); color:var(--dni-mine-dark); border:1px solid var(--dni-mine-dark); pointer-events:none; }
+.dock-item:not(.on) .dock-zoom-badge{ display:none; }
 @media (hover:none){ .dock-item:hover .dock-tile{ transform:none; } }
-@media (max-width:640px){ .dock{ gap:10px; height:66px; padding:0 10px 8px; } .dock-item{ width:44px; height:44px; } body{ padding-bottom:110px; } }
+@media (max-width:640px){ .dock{ gap:8px; height:66px; padding:0 8px 8px; } .dock-item{ width:44px; height:44px; } body{ padding-bottom:110px; } }
 </style>
 </head>
 <body>
@@ -685,6 +686,10 @@ body{ padding-bottom:128px; }
     <button type="button" class="dock-item" id="dlBtn" hidden aria-label="Download catalog.json">
       <span class="dock-tile tile-dl" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></span>
       <span class="dock-tip">Download catalog.json</span><span class="dock-dot"></span>
+    </button>
+    <button type="button" class="dock-item" id="zoomBtn" aria-label="Zoom the page">
+      <span class="dock-tile tile-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6M8 11h6"/></svg><span class="dock-zoom-badge" id="zoomBadge"></span></span>
+      <span class="dock-tip">Zoom</span><span class="dock-dot"></span>
     </button>
     <button type="button" class="dock-item" id="topBtn" aria-label="Back to top">
       <span class="dock-tile tile-top" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></span>
@@ -1180,6 +1185,23 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) refr
   });
   $("dlBtn").addEventListener("click", downloadJson);
   $("topBtn").addEventListener("click", () => window.scrollTo({top: 0, behavior: "smooth"}));
+
+  /* zoom: cycles the page's base size, remembered on this device */
+  (function zoom(){
+    const steps = [100, 115, 130, 150];
+    let i = Math.max(0, steps.indexOf(Number(localStorage.getItem("cat_zoom") || 100)));
+    const btn = $("zoomBtn"), badge = $("zoomBadge");
+    const apply = () => {
+      const z = steps[i];
+      document.documentElement.style.fontSize = z === 100 ? "" : z + "%";
+      badge.textContent = z + "%";
+      btn.classList.toggle("on", z !== 100);
+      dockLabel(btn, z === 100 ? "Zoom" : "Zoom " + z + "%, click for " + (steps[(i + 1) % steps.length] === 100 ? "normal" : steps[(i + 1) % steps.length] + "%"));
+      try { localStorage.setItem("cat_zoom", String(z)); } catch (e) {}
+    };
+    btn.addEventListener("click", () => { i = (i + 1) % steps.length; apply(); });
+    apply();
+  })();
   tgl.hidden = false;
 
   /* dock magnification, pointer devices only */
