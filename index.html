@@ -441,6 +441,53 @@ body{ overflow-x:hidden; }
 .dni-index > li > div{ font-size:var(--size-body-s); line-height:var(--leading-body); color:var(--text-muted); }
 .dni-index > li strong{ font-weight:500; color:var(--text-primary); }
 
+
+/* ---------- dock ---------- */
+body{ padding-bottom:128px; }
+.dock-wrap{ position:fixed; left:0; right:0; bottom:18px; display:flex; justify-content:center; pointer-events:none; z-index:50; padding:0 16px; }
+.dock{
+  pointer-events:auto; display:flex; align-items:flex-end; gap:14px; height:76px; padding:0 14px 10px;
+  border-radius:24px; background:rgba(248,243,240,0.55);
+  backdrop-filter:blur(14px) saturate(1.2); -webkit-backdrop-filter:blur(14px) saturate(1.2);
+  border:2px solid rgba(255,255,255,0.45); box-shadow:0 20px 50px rgba(14,16,20,0.28);
+  transform:translateY(120px); opacity:0; animation:dockIn .6s cubic-bezier(.2,.9,.3,1.08) .1s forwards;
+}
+@keyframes dockIn{ to{ transform:none; opacity:1; } }
+.dock-item{
+  position:relative; width:50px; height:50px; padding:0; border:0; background:transparent; cursor:pointer;
+  transition:width .18s cubic-bezier(.2,.8,.2,1), height .18s cubic-bezier(.2,.8,.2,1);
+  -webkit-tap-highlight-color:transparent; flex:0 0 auto;
+}
+.dock-item[hidden]{ display:none!important; }
+.dock-tile{
+  width:100%; height:100%; border-radius:30%; display:flex; align-items:center; justify-content:center;
+  color:#fff; box-shadow:0 8px 20px rgba(14,16,20,0.28); position:relative; overflow:hidden;
+  transition:transform .25s cubic-bezier(.2,1.4,.4,1), background .25s;
+}
+.dock-tile::after{ content:""; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,.26),transparent 60%); opacity:.5; transition:opacity .2s; }
+.dock-item:hover .dock-tile{ transform:translateY(-8px); }
+.dock-item:hover .dock-tile::after{ opacity:1; }
+.dock-item:active .dock-tile{ transform:translateY(2px) scale(.96); }
+.dock-tile svg{ width:46%; height:46%; transition:transform .25s cubic-bezier(.2,1.4,.4,1); }
+.dock-item:hover .dock-tile svg{ transform:scale(1.1); }
+.dock-tip{
+  position:absolute; left:50%; bottom:calc(100% + 14px); transform:translate(-50%,10px) scale(.8); opacity:0;
+  background:rgba(14,16,20,.9); color:#fff; font-family:var(--font-mono); font-weight:500; font-size:11px; line-height:1;
+  letter-spacing:.06em; text-transform:uppercase; padding:7px 9px; border-radius:6px; white-space:nowrap;
+  pointer-events:none; backdrop-filter:blur(4px); transition:opacity .2s, transform .25s cubic-bezier(.2,1.2,.4,1);
+}
+.dock-item:hover .dock-tip, .dock-item:focus-visible .dock-tip{ opacity:1; transform:translate(-50%,0) scale(1); }
+.dock-dot{ position:absolute; left:50%; bottom:-7px; width:4px; height:4px; border-radius:50%; background:rgba(14,16,20,.35); transform:translateX(-50%); transition:transform .2s, background .2s; }
+.dock-item.on .dock-dot{ background:var(--dni-dynamite); transform:translateX(-50%) scale(1.6); }
+.dock-item:focus-visible{ outline:2px solid var(--dni-silk-medium); outline-offset:4px; border-radius:30%; }
+.tile-add{ background:var(--dni-silk-medium); }
+.tile-lock{ background:var(--dni-mine-light); }
+.dock-item.on .tile-lock{ background:var(--dni-leaf-medium); }
+.dock-item.on .ico-locked, .dock-item:not(.on) .ico-open{ display:none; }
+.tile-dl{ background:var(--dni-dirt-medium); }
+.tile-top{ background:var(--dni-silk-dark); }
+@media (hover:none){ .dock-item:hover .dock-tile{ transform:none; } }
+@media (max-width:640px){ .dock{ gap:10px; height:66px; padding:0 10px 8px; } .dock-item{ width:44px; height:44px; } body{ padding-bottom:110px; } }
 </style>
 </head>
 <body>
@@ -488,7 +535,6 @@ body{ overflow-x:hidden; }
     <div class="fgroup rightgroup">
       <label class="visually-hidden" for="q">Search the catalogue</label>
       <input id="q" type="search" placeholder="Search" autocomplete="off">
-      <button type="button" class="chip" id="addToggle" hidden aria-expanded="false">Add item</button>
       <p class="dni-mono count" id="count" aria-live="polite">&mdash;</p>
     </div>
   </div>
@@ -623,6 +669,30 @@ body{ overflow-x:hidden; }
   <p class="dni-legal" style="color:var(--dni-silk-light)">Purchasing catalogue / anyone with the link can add an item, add a vendor, or correct a price</p>
 </footer>
 
+<div class="dock-wrap">
+  <nav class="dock" id="dock" aria-label="Catalogue actions">
+    <button type="button" class="dock-item" id="addToggle" hidden aria-expanded="false" aria-label="Add item">
+      <span class="dock-tile tile-add" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
+      <span class="dock-tip">Add item</span><span class="dock-dot"></span>
+    </button>
+    <button type="button" class="dock-item" id="unlockBtn" hidden aria-label="Unlock to edit">
+      <span class="dock-tile tile-lock" aria-hidden="true">
+        <svg class="ico-locked" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <svg class="ico-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+      </span>
+      <span class="dock-tip">Unlock to edit</span><span class="dock-dot"></span>
+    </button>
+    <button type="button" class="dock-item" id="dlBtn" hidden aria-label="Download catalog.json">
+      <span class="dock-tile tile-dl" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></span>
+      <span class="dock-tip">Download catalog.json</span><span class="dock-dot"></span>
+    </button>
+    <button type="button" class="dock-item" id="topBtn" aria-label="Back to top">
+      <span class="dock-tile tile-top" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></span>
+      <span class="dock-tip">Back to top</span><span class="dock-dot"></span>
+    </button>
+  </nav>
+</div>
+
 <script>
 const CATS = ["Print","Signage","Apparel","Promotional","Office","Property"];
 const CHAN = {appfolio:"AppFolio", outside:"Outside AppFolio"};
@@ -648,6 +718,12 @@ function setSync(msg, tone){
   el.className = "dni-mono syncmark" + (tone ? " " + tone : "");
 }
 
+function dockLabel(btn, text){
+  const tip = btn.querySelector(".dock-tip");
+  if (tip) tip.textContent = text;
+  btn.setAttribute("aria-label", text);
+}
+
 function refreshSync(){
   if (!loaded) return;
   let msg, tone = "";
@@ -671,7 +747,11 @@ function refreshSync(){
   setSync(msg, tone);
   const dl = $("dlBtn"); if (dl){ dl.hidden = live; dl.classList.toggle("on", dirty); }
   const ul = $("unlockBtn");
-  if (ul){ ul.hidden = !live; ul.textContent = unlocked() ? "Editing as " + auth.name : "Unlock to edit"; ul.classList.toggle("on", unlocked()); }
+  if (ul){
+    ul.hidden = !live;
+    dockLabel(ul, unlocked() ? "Editing as " + auth.name + ", click to lock" : "Unlock to edit");
+    ul.classList.toggle("on", unlocked());
+  }
 }
 
 function markDirty(){ dirty = true; refreshSync(); scheduleSave(); }
@@ -1085,9 +1165,7 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) refr
   });
 
   const tgl = $("addToggle");
-  const ul = document.createElement("button");
-  ul.type = "button"; ul.className = "chip"; ul.id = "unlockBtn"; ul.hidden = true;
-  ul.textContent = "Unlock to edit";
+  const ul = $("unlockBtn");
   ul.addEventListener("click", () => {
     if (unlocked()){
       if (confirm("Lock editing on this device? Your name stays remembered.")) lock();
@@ -1100,14 +1178,29 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) refr
       ($("uName").value ? $("uPass") : $("uName")).focus();
     }
   });
-  tgl.parentNode.insertBefore(ul, tgl.nextSibling);
-
-  const dl = document.createElement("button");
-  dl.type = "button"; dl.className = "chip"; dl.id = "dlBtn"; dl.hidden = true;
-  dl.textContent = "Download catalog.json";
-  dl.addEventListener("click", downloadJson);
-  tgl.parentNode.insertBefore(dl, ul.nextSibling);
+  $("dlBtn").addEventListener("click", downloadJson);
+  $("topBtn").addEventListener("click", () => window.scrollTo({top: 0, behavior: "smooth"}));
   tgl.hidden = false;
+
+  /* dock magnification, pointer devices only */
+  (function dockMagnify(){
+    const dock = $("dock");
+    if (!dock || !window.matchMedia("(hover:hover)").matches) return;
+    const base = 50, peak = 80, range = 150;
+    const setAll = x => {
+      dock.querySelectorAll(".dock-item").forEach(el => {
+        if (el.hidden) return;
+        if (x === Infinity){ el.style.width = el.style.height = ""; return; }
+        const r = el.getBoundingClientRect();
+        const d = Math.abs(x - (r.left + r.width / 2));
+        const t = Math.max(0, 1 - d / range);
+        const size = base + (peak - base) * t * t;
+        el.style.width = el.style.height = size.toFixed(1) + "px";
+      });
+    };
+    dock.addEventListener("mousemove", e => setAll(e.clientX));
+    dock.addEventListener("mouseleave", () => setAll(Infinity));
+  })();
 
   $("uCancel").addEventListener("click", () => { $("unlockPanel").hidden = true; $("unlockErr").hidden = true; });
   $("unlockForm").addEventListener("submit", async e => {
