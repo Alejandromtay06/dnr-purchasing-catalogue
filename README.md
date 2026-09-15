@@ -31,10 +31,10 @@ The function needs two environment variables on the Netlify project
 
 | Variable | What it is |
 |---|---|
-| `GITHUB_TOKEN` | A fine-grained personal access token with **Contents: Read and write** on this repository only, nothing else |
+| `DNR_PURCHASING_CATALOG_TOKEN` | A fine-grained GitHub personal access token with **Contents: Read and write** on this repository only, nothing else |
 | `EDIT_PASSWORD` | The one password the team uses to unlock editing |
 
-Without `GITHUB_TOKEN` the page shows "Shared save is offline" and falls back
+Without the token the page shows "Shared save is offline" and falls back
 to the download-and-commit workflow below. Without `EDIT_PASSWORD` nobody can
 unlock.
 

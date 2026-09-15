@@ -31,8 +31,8 @@ function corsHeaders(req) {
 }
 
 async function gh(path, init = {}) {
-  const token = Netlify.env.get("GITHUB_TOKEN");
-  if (!token) throw Object.assign(new Error("GITHUB_TOKEN is not configured on Netlify"), { status: 503 });
+  const token = Netlify.env.get("DNR_PURCHASING_CATALOG_TOKEN") || Netlify.env.get("GITHUB_TOKEN");
+  if (!token) throw Object.assign(new Error("DNR_PURCHASING_CATALOG_TOKEN is not configured on Netlify"), { status: 503 });
   return fetch("https://api.github.com/repos/" + REPO + "/contents/" + path, {
     ...init,
     headers: {
