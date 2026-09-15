@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <style>
-:root{color-scheme:light}
-body{margin:0;font:14px system-ui,sans-serif;background:#faf9f7}
+:root{color-scheme:dark}
+body{margin:0;font:14px system-ui,sans-serif;background:#0E1014}
 img{max-width:100%}
 [hidden]{display:none!important}
 </style>
@@ -442,6 +442,49 @@ body{ overflow-x:hidden; }
 .dni-index > li strong{ font-weight:500; color:var(--text-primary); }
 
 
+/* ---------- theme: DNR mine black + dynamite signal ---------- */
+:root{
+  color-scheme:dark;
+  --surface-canvas:var(--dni-mine-dark); --surface-raised:var(--dni-mine-medium);
+  --surface-sunken:var(--dni-mine-light); --surface-brand:var(--dni-mine-medium);
+  --surface-deep:#000000; --surface-editorial:var(--dni-mine-light); --surface-quiet:var(--dni-mine-light);
+  --text-primary:var(--dni-sand-light); --text-secondary:rgba(248,243,240,0.72);
+  --text-muted:rgba(248,243,240,0.55); --text-link:var(--dni-dynamite);
+  --text-on-brand:var(--dni-sand-light); --text-on-brand-muted:rgba(248,243,240,0.64);
+  --text-on-deep:var(--dni-sand-light); --text-on-deep-muted:rgba(248,243,240,0.64);
+  --action-bg:var(--dni-dynamite); --action-bg-hover:var(--dni-sand-light); --action-fg:var(--dni-mine-dark);
+  --action-ghost-hover:rgba(221,221,0,0.12); --focus-ring:var(--dni-dynamite);
+  --feedback-success:var(--dni-dynamite); --feedback-error:#FF7A45;
+  --dni-rule-on-light:var(--dni-rule-on-dark);
+}
+html,body{ background:var(--dni-mine-dark); color:var(--text-primary); }
+.dni-rail-header{ border-bottom-color:var(--dni-dynamite); }
+.dni-rail-header .mark{ color:var(--dni-dynamite)!important; }
+.dni-rail-header .idx{ color:var(--dni-dynamite); }
+.dni-panel.brand{ border-bottom:2px solid var(--dni-dynamite); }
+.dni-panel.brand .dni-eyebrow,.dni-panel.deep .dni-eyebrow,.formhead,.ispec .dni-eyebrow{ color:var(--dni-dynamite); }
+.dni-panel.brand a,.dni-panel.deep a{ color:var(--dni-dynamite); }
+.dni-panel.brand a:hover,.dni-panel.deep a:hover{ color:var(--dni-sand-light); }
+.chip{ color:var(--text-secondary); border-color:var(--dni-rule-on-dark); }
+.chip:hover{ background:var(--dni-mine-light); color:var(--dni-sand-light); }
+.chip.on{ background:var(--dni-dynamite); color:var(--dni-mine-dark); border-color:var(--dni-dynamite); }
+#q,.addform input,.addform select{ background:var(--dni-mine-light); color:var(--dni-sand-light); border-color:var(--dni-rule-on-dark); }
+.dni-panel.sunken .addform input,.dni-panel.sunken .addform select{ background:var(--dni-mine-dark); }
+#q::placeholder,.addform input::placeholder{ color:rgba(248,243,240,0.4); }
+#q:focus,.addform input:focus,.addform select:focus{ border-color:var(--dni-dynamite); box-shadow:0 0 0 1px var(--dni-dynamite); }
+.dni-btn.secondary{ color:var(--dni-sand-light); border-color:var(--dni-rule-on-dark); }
+.dni-btn.secondary:hover{ border-color:var(--dni-dynamite); color:var(--dni-dynamite); }
+.ispec{ border-left:2px solid var(--dni-dynamite); }
+.ispec.missing{ border-left-color:var(--feedback-error); }
+.flag.cheap{ color:var(--dni-dynamite); border-color:var(--dni-dynamite); }
+.flag.fast{ color:var(--dni-sand-light); border-color:var(--dni-sand-light); }
+.flag.both{ background:var(--dni-dynamite); color:var(--dni-mine-dark); border-color:var(--dni-dynamite); }
+.syncmark.ok{ color:var(--dni-dynamite); }
+.ititle h3{ color:var(--dni-sand-light); }
+.dni-panel.deep .dni-stat .val{ color:var(--dni-sand-light); }
+.dni-panel.deep .dni-stat.key .val{ color:var(--dni-dynamite); }
+::selection{ background:var(--dni-dynamite); color:var(--dni-mine-dark); }
+
 /* ---------- dock (DNR: mine black, dynamite signal, square) ---------- */
 body{ padding-bottom:128px; }
 .dock-wrap{ position:fixed; left:0; right:0; bottom:18px; display:flex; justify-content:center; pointer-events:none; z-index:50; padding:0 16px; }
@@ -682,6 +725,10 @@ body{ padding-bottom:128px; }
         <svg class="ico-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
       </span>
       <span class="dock-tip">Unlock to edit</span><span class="dock-dot"></span>
+    </button>
+    <button type="button" class="dock-item" id="xlsBtn" aria-label="Download as Excel">
+      <span class="dock-tile tile-xls" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 12 6 6M15 12l-6 6"/></svg></span>
+      <span class="dock-tip">Download as Excel</span><span class="dock-dot"></span>
     </button>
     <button type="button" class="dock-item" id="dlBtn" hidden aria-label="Download catalog.json">
       <span class="dock-tile tile-dl" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></span>
@@ -1053,6 +1100,124 @@ let auth = {
 const unlocked = () => !!(auth.name && auth.password);
 const payload = () => ({ updated: new Date().toISOString().slice(0,10), items: items, vendors: vendors });
 
+/* ---------- Excel export: minimal .xlsx writer, no library ---------- */
+const XLSX = (() => {
+  const enc = new TextEncoder();
+  const crcTable = (() => {
+    const t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++){ let c = n; for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); t[n] = c >>> 0; }
+    return t;
+  })();
+  const crc32 = b => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = crcTable[(c ^ b[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  const xesc = s => String(s == null ? "" : s)
+    .replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "");
+  const colName = n => { let s = ""; n++; while (n){ const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; };
+
+  function sheetXml(rows, widths){
+    let x = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+      '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>';
+    if (widths) x += "<cols>" + widths.map((w, i) => '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>').join("") + "</cols>";
+    x += "<sheetData>";
+    rows.forEach((r, ri) => {
+      x += '<row r="' + (ri + 1) + '">';
+      r.forEach((v, ci) => {
+        const ref = colName(ci) + (ri + 1);
+        if (ri === 0) x += '<c r="' + ref + '" t="inlineStr" s="1"><is><t>' + xesc(v) + '</t></is></c>';
+        else if (typeof v === "number" && isFinite(v)) x += '<c r="' + ref + '" s="' + (Number.isInteger(v) ? 0 : 2) + '"><v>' + v + '</v></c>';
+        else if (v == null || v === "") return;
+        else x += '<c r="' + ref + '" t="inlineStr"><is><t xml:space="preserve">' + xesc(v) + '</t></is></c>';
+      });
+      x += "</row>";
+    });
+    return x + "</sheetData></worksheet>";
+  }
+
+  // Stored (uncompressed) zip. Excel accepts it; files stay small.
+  function zip(files){
+    const parts = [], central = []; let offset = 0;
+    const u16 = n => [n & 255, (n >> 8) & 255];
+    const u32 = n => [n & 255, (n >> 8) & 255, (n >> 16) & 255, (n >>> 24) & 255];
+    const d = new Date();
+    const dosTime = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+    const dosDate = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    files.forEach(f => {
+      const name = enc.encode(f.name), crc = crc32(f.data), n = f.data.length;
+      const local = new Uint8Array([...u32(0x04034b50), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(dosTime), ...u16(dosDate),
+        ...u32(crc), ...u32(n), ...u32(n), ...u16(name.length), ...u16(0), ...name]);
+      parts.push(local, f.data);
+      central.push(new Uint8Array([...u32(0x02014b50), ...u16(20), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(dosTime), ...u16(dosDate),
+        ...u32(crc), ...u32(n), ...u32(n), ...u16(name.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(offset), ...name]));
+      offset += local.length + n;
+    });
+    const cdSize = central.reduce((a, c) => a + c.length, 0);
+    const end = new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0), ...u16(files.length), ...u16(files.length), ...u32(cdSize), ...u32(offset), ...u16(0)]);
+    return new Blob([...parts, ...central, end], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  }
+
+  function build(sheets){
+    const f = (name, s) => ({name: name, data: enc.encode(s)});
+    const hdr = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+    const files = [
+      f("[Content_Types].xml", hdr + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+        '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+        '<Default Extension="xml" ContentType="application/xml"/>' +
+        '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+        '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
+        sheets.map((s, i) => '<Override PartName="/xl/worksheets/sheet' + (i + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join("") +
+        '</Types>'),
+      f("_rels/.rels", hdr + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+        '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'),
+      f("xl/workbook.xml", hdr + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>' +
+        sheets.map((s, i) => '<sheet name="' + xesc(s.name) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>').join("") +
+        '</sheets></workbook>'),
+      f("xl/_rels/workbook.xml.rels", hdr + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+        sheets.map((s, i) => '<Relationship Id="rId' + (i + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>').join("") +
+        '<Relationship Id="rId' + (sheets.length + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'),
+      f("xl/styles.xml", hdr + '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+        '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFDDDD00"/><name val="Calibri"/></font></fonts>' +
+        '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF0E1014"/></patternFill></fill></fills>' +
+        '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>' +
+        '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+        '<cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+        '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/>' +
+        '<xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs></styleSheet>')
+    ];
+    sheets.forEach((s, i) => files.push(f("xl/worksheets/sheet" + (i + 1) + ".xml", sheetXml(s.rows, s.widths))));
+    return zip(files);
+  }
+  return { build: build };
+})();
+
+function catalogueSheets(){
+  const byItem = {}; items.forEach(i => { byItem[i.id] = i; });
+  const flat = [["Item","Category","Specification","Item notes","Vendor","Bought through","Unit cost (USD)","Minimum quantity","Delivery (days)","Link or SKU","Vendor notes"]];
+  items.forEach(it => {
+    const vs = vendorsOf(it.id);
+    if (!vs.length) flat.push([it.name, it.category, it.spec, it.note, "", "", null, null, null, "", ""]);
+    vs.forEach(v => flat.push([it.name, it.category, it.spec, it.note, v.vendor, CHAN[v.channel], v.unitCost, v.minQty, v.deliveryDays, v.link, v.note]));
+  });
+  const itemRows = [["ID","Item","Category","Specification","Notes"]]
+    .concat(items.map(i => [i.id, i.name, i.category, i.spec, i.note]));
+  const vendorRows = [["ID","Item ID","Item","Vendor","Bought through","Unit cost (USD)","Minimum quantity","Delivery (days)","Link or SKU","Notes"]]
+    .concat(vendors.map(v => [v.id, v.itemId, (byItem[v.itemId] || {}).name || "", v.vendor, CHAN[v.channel], v.unitCost, v.minQty, v.deliveryDays, v.link, v.note]));
+  return [
+    {name: "Catalogue", rows: flat, widths: [28,12,48,36,24,16,14,16,14,32,36]},
+    {name: "Items", rows: itemRows, widths: [16,28,12,48,40]},
+    {name: "Vendors", rows: vendorRows, widths: [16,16,28,24,16,14,16,14,32,40]}
+  ];
+}
+
+function downloadExcel(){
+  const blob = XLSX.build(catalogueSheets());
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "DNR-purchasing-catalogue-" + new Date().toISOString().slice(0,10) + ".xlsx";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 function downloadJson(){
   const blob = new Blob([JSON.stringify(payload(), null, 2)], {type:"application/json"});
   const url = URL.createObjectURL(blob);
@@ -1184,6 +1349,7 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) refr
     }
   });
   $("dlBtn").addEventListener("click", downloadJson);
+  $("xlsBtn").addEventListener("click", downloadExcel);
   $("topBtn").addEventListener("click", () => window.scrollTo({top: 0, behavior: "smooth"}));
 
   /* zoom: cycles the page's base size, remembered on this device */

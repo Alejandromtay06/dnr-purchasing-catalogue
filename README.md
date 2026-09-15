@@ -60,6 +60,12 @@ repository history is the audit trail: who changed which price, and when.
 If two people save the same second, the second one is told the catalogue
 changed underneath them and gets the fresh version to re-apply their edit.
 
+### Excel copy
+
+The spreadsheet tile in the dock downloads the whole catalogue as an Excel
+file with three sheets: Catalogue (one row per item and vendor), Items, and
+Vendors. It is a snapshot for printing or emailing; the page stays the source.
+
 ### If the shared save is offline
 
 The page falls back to the old workflow: **Download catalog.json**, then in
