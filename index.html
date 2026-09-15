@@ -542,7 +542,6 @@ body{ padding-bottom:128px; }
   </svg>
   <p class="dni-eyebrow">Diamond National Realty</p>
   <p class="dni-eyebrow hide-sm">Purchasing</p>
-  <p class="dni-eyebrow idx" id="updated">Shared catalogue</p>
 </header>
 
 <section class="dni-panel brand">
@@ -730,9 +729,9 @@ body{ padding-bottom:128px; }
       <span class="dock-tile tile-xls" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 12 6 6M15 12l-6 6"/></svg></span>
       <span class="dock-tip">Download as Excel</span><span class="dock-dot"></span>
     </button>
-    <button type="button" class="dock-item" id="dlBtn" hidden aria-label="Download catalog.json">
-      <span class="dock-tile tile-dl" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></span>
-      <span class="dock-tip">Download catalog.json</span><span class="dock-dot"></span>
+    <button type="button" class="dock-item" id="saveBtn" aria-label="Save">
+      <span class="dock-tile tile-save" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg></span>
+      <span class="dock-tip">Save</span><span class="dock-dot"></span>
     </button>
     <button type="button" class="dock-item" id="zoomBtn" aria-label="Zoom the page">
       <span class="dock-tile tile-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6M8 11h6"/></svg><span class="dock-zoom-badge" id="zoomBadge"></span></span>
@@ -797,7 +796,12 @@ function refreshSync(){
     tone = "ok";
   }
   setSync(msg, tone);
-  const dl = $("dlBtn"); if (dl){ dl.hidden = live; dl.classList.toggle("on", dirty); }
+  const sb = $("saveBtn");
+  if (sb){
+    sb.classList.toggle("on", dirty);
+    dockLabel(sb, !live ? (dirty ? "Download catalog.json to save" : "Download catalog.json")
+      : saving ? "Saving" : dirty ? (unlocked() ? "Save now" : "Unlock to save") : "Saved");
+  }
   const ul = $("unlockBtn");
   if (ul){
     ul.hidden = !live;
@@ -1348,7 +1352,11 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) refr
       ($("uName").value ? $("uPass") : $("uName")).focus();
     }
   });
-  $("dlBtn").addEventListener("click", downloadJson);
+  $("saveBtn").addEventListener("click", () => {
+    if (!live){ downloadJson(); return; }
+    if (!unlocked()){ $("unlockBtn").click(); return; }
+    clearTimeout(saveTimer); saveNow();
+  });
   $("xlsBtn").addEventListener("click", downloadExcel);
   $("topBtn").addEventListener("click", () => window.scrollTo({top: 0, behavior: "smooth"}));
 
