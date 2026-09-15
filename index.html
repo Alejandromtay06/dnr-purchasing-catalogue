@@ -495,6 +495,29 @@ body{ overflow-x:hidden; }
   <p class="dni-mono syncmark" id="syncmark">Connecting to the shared catalogue</p>
 </div>
 
+<!-- UNLOCK -->
+<section class="dni-panel sunken addpanel" id="unlockPanel" hidden>
+  <form id="unlockForm" class="addform">
+    <p class="dni-eyebrow formhead">Unlock editing</p>
+    <div class="fieldrow">
+      <label class="dni-eyebrow" for="uName">Your name</label>
+      <input id="uName" type="text" maxlength="60" required placeholder="First name" autocomplete="name">
+    </div>
+    <div class="fieldrow">
+      <label class="dni-eyebrow" for="uPass">Team password</label>
+      <input id="uPass" type="password" required autocomplete="current-password">
+    </div>
+    <div class="fieldrow wide">
+      <p class="dni-legal" style="margin:0">Your name goes on every change, so the history says who confirmed a price and when. The password is one shared password for the whole team.</p>
+    </div>
+    <div class="fieldrow actions">
+      <button type="submit" class="dni-btn" id="uSubmit">Unlock</button>
+      <button type="button" class="dni-btn secondary" id="uCancel">Cancel</button>
+    </div>
+  </form>
+  <p class="dni-mono formerr" id="unlockErr" hidden></p>
+</section>
+
 <!-- ITEM FORM -->
 <section class="dni-panel raised addpanel" id="itemPanel" hidden>
   <form id="itemForm" class="addform">
@@ -627,16 +650,31 @@ function setSync(msg, tone){
 
 function refreshSync(){
   if (!loaded) return;
-  if (dirty){
-    setSync("You have unsaved changes. Download catalog.json and commit it to the repository.", "warn");
+  let msg, tone = "";
+  if (!live){
+    msg = dirty
+      ? "Unsaved changes. The shared save is offline, so download catalog.json and commit it by hand."
+      : "Shared save is offline. Showing the last published catalog.json.";
+    tone = "warn";
+  } else if (saving){
+    msg = "Saving to the shared catalogue";
+  } else if (dirty){
+    msg = unlocked() ? "Unsaved changes, saving shortly" : "Unsaved changes. Unlock to save them to the shared catalogue.";
+    tone = "warn";
+  } else if (lastSaved){
+    msg = "Saved " + lastSaved.when.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}) + " by " + lastSaved.who + ". Everyone sees this version.";
+    tone = "ok";
   } else {
-    setSync("Showing catalog.json from the repository. Edits here are local until you download and commit.", "ok");
+    msg = unlocked() ? "Live. Editing as " + auth.name + ". Changes save automatically." : "Live shared catalogue. Unlock to edit.";
+    tone = "ok";
   }
-  const btn = $("dlBtn");
-  if (btn) btn.classList.toggle("on", dirty);
+  setSync(msg, tone);
+  const dl = $("dlBtn"); if (dl){ dl.hidden = live; dl.classList.toggle("on", dirty); }
+  const ul = $("unlockBtn");
+  if (ul){ ul.hidden = !live; ul.textContent = unlocked() ? "Editing as " + auth.name : "Unlock to edit"; ul.classList.toggle("on", unlocked()); }
 }
 
-function markDirty(){ dirty = true; refreshSync(); }
+function markDirty(){ dirty = true; refreshSync(); scheduleSave(); }
 
 const vendorsOf = id => vendors.filter(v => v.itemId === id);
 
@@ -918,21 +956,126 @@ const num = el => {
   return isFinite(n) ? n : null;
 };
 
-/* ---------- download ---------- */
+/* ---------- shared save (Netlify function -> commits catalog.json) ---------- */
+const API = location.hostname === "dnr-purchasing-catalogue.netlify.app"
+  ? "/api/catalog"
+  : "https://dnr-purchasing-catalogue.netlify.app/api/catalog";
+let sha = null, live = false, saving = false, saveTimer = null, lastSaved = null;
+let auth = {
+  name: localStorage.getItem("cat_name") || "",
+  password: sessionStorage.getItem("cat_pw") || ""
+};
+const unlocked = () => !!(auth.name && auth.password);
+const payload = () => ({ updated: new Date().toISOString().slice(0,10), items: items, vendors: vendors });
+
 function downloadJson(){
-  const payload = {
-    updated: new Date().toISOString().slice(0,10),
-    items: items,
-    vendors: vendors
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+  const blob = new Blob([JSON.stringify(payload(), null, 2)], {type:"application/json"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url; a.download = "catalog.json";
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  dirty = false; refreshSync();
+  if (!live){ dirty = false; refreshSync(); }
 }
+
+function applyData(d){
+  items = Array.isArray(d.items) ? d.items.map(v => ({
+    id: v.id || uid(),
+    name: v.name || "Untitled",
+    category: CATS.indexOf(v.category) > -1 ? v.category : "Print",
+    spec: v.spec || "", note: v.note || ""
+  })) : [];
+  vendors = Array.isArray(d.vendors) ? d.vendors.map(v => ({
+    id: v.id || uid(), itemId: v.itemId,
+    vendor: v.vendor || "Unnamed",
+    channel: v.channel === "appfolio" ? "appfolio" : "outside",
+    unitCost: typeof v.unitCost === "number" ? v.unitCost : null,
+    minQty: typeof v.minQty === "number" ? v.minQty : null,
+    deliveryDays: typeof v.deliveryDays === "number" ? v.deliveryDays : null,
+    link: v.link || "", note: v.note || ""
+  })) : [];
+  if (d.sha) sha = d.sha;
+  const u = $("updated");
+  if (u && d.updated) u.textContent = "catalog.json / " + d.updated;
+}
+
+async function loadShared(){
+  const r = await fetch(API, {cache:"no-store"});
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
+
+function scheduleSave(){
+  if (!live || !unlocked()) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveNow, 1200);
+}
+
+async function saveNow(){
+  if (saving || !dirty || !unlocked()) return;
+  saving = true; refreshSync();
+  try {
+    const r = await fetch(API, {
+      method: "POST", headers: {"content-type":"application/json"},
+      body: JSON.stringify({password: auth.password, name: auth.name, sha: sha, catalog: payload()})
+    });
+    const d = await r.json().catch(() => ({}));
+    if (r.status === 401){
+      saving = false; lock();
+      setSync("The team password was rejected. Unlock again to keep saving.", "warn");
+      return;
+    }
+    if (r.status === 409){
+      saving = false; applyData(d); dirty = false; render();
+      setSync("Someone else saved first. Their version is showing now; please re-apply your change.", "warn");
+      return;
+    }
+    if (!r.ok) throw new Error(d.error || ("HTTP " + r.status));
+    sha = d.sha; dirty = false; saving = false;
+    lastSaved = {when: new Date(), who: auth.name};
+    const u = $("updated");
+    if (u && d.updated) u.textContent = "catalog.json / " + d.updated;
+    refreshSync();
+  } catch (err){
+    saving = false;
+    setSync("Could not save (" + err.message + "). Your changes are still here and will retry.", "warn");
+    setTimeout(scheduleSave, 8000);
+  } finally {
+    saving = false;
+    if (dirty && unlocked()) scheduleSave();
+  }
+}
+
+function lock(){
+  auth = {name: auth.name, password: ""};
+  sessionStorage.removeItem("cat_pw");
+  refreshSync();
+}
+
+async function tryUnlock(name, password){
+  const r = await fetch(API, {
+    method: "POST", headers: {"content-type":"application/json"},
+    body: JSON.stringify({password: password, name: name, verify: true})
+  });
+  if (r.status === 401) throw new Error("That password is not right.");
+  if (!r.ok){
+    const d = await r.json().catch(() => ({}));
+    throw new Error(d.error || ("Could not reach the shared save (HTTP " + r.status + ")."));
+  }
+  auth = {name: name, password: password};
+  localStorage.setItem("cat_name", name);
+  sessionStorage.setItem("cat_pw", password);
+}
+
+async function refreshFromShared(){
+  if (!live || dirty || saving) return;
+  try {
+    const d = await loadShared();
+    if (d.sha && d.sha !== sha){ applyData(d); render(); refreshSync(); }
+  } catch (e){ /* keep showing what we have */ }
+}
+setInterval(refreshFromShared, 60000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshFromShared(); });
 
 (function wireForms(){
   const sel = $("iCat");
@@ -941,13 +1084,50 @@ function downloadJson(){
     o.value = c; o.textContent = c; sel.appendChild(o);
   });
 
+  const tgl = $("addToggle");
+  const ul = document.createElement("button");
+  ul.type = "button"; ul.className = "chip"; ul.id = "unlockBtn"; ul.hidden = true;
+  ul.textContent = "Unlock to edit";
+  ul.addEventListener("click", () => {
+    if (unlocked()){
+      if (confirm("Lock editing on this device? Your name stays remembered.")) lock();
+      return;
+    }
+    const p = $("unlockPanel");
+    p.hidden = !p.hidden;
+    if (!p.hidden){
+      $("uName").value = auth.name;
+      ($("uName").value ? $("uPass") : $("uName")).focus();
+    }
+  });
+  tgl.parentNode.insertBefore(ul, tgl.nextSibling);
+
   const dl = document.createElement("button");
-  dl.type = "button"; dl.className = "chip"; dl.id = "dlBtn";
+  dl.type = "button"; dl.className = "chip"; dl.id = "dlBtn"; dl.hidden = true;
   dl.textContent = "Download catalog.json";
   dl.addEventListener("click", downloadJson);
-  const tgl = $("addToggle");
-  tgl.parentNode.insertBefore(dl, tgl.nextSibling);
+  tgl.parentNode.insertBefore(dl, ul.nextSibling);
   tgl.hidden = false;
+
+  $("uCancel").addEventListener("click", () => { $("unlockPanel").hidden = true; $("unlockErr").hidden = true; });
+  $("unlockForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const name = $("uName").value.trim(), pw = $("uPass").value;
+    if (!name || !pw) return;
+    const btn = $("uSubmit"); btn.disabled = true; btn.textContent = "Checking";
+    const err = $("unlockErr"); err.hidden = true;
+    try {
+      await tryUnlock(name, pw);
+      $("uPass").value = "";
+      $("unlockPanel").hidden = true;
+      refreshSync();
+      if (dirty) scheduleSave();
+    } catch (ex){
+      err.textContent = ex.message; err.hidden = false;
+    } finally {
+      btn.disabled = false; btn.textContent = "Unlock";
+    }
+  });
 
   $("addToggle").addEventListener("click", () => {
     if ($("itemPanel").hidden) openItem(null); else closeItem();
@@ -1008,45 +1188,26 @@ function downloadJson(){
   });
 })();
 
-/* ---------- footer and header text ---------- */
+/* ---------- footer text ---------- */
 (function relabel(){
   const legal = document.querySelector("footer .dni-legal");
   if (legal) legal.textContent =
-    "Purchasing catalogue / the data lives in catalog.json in the repository. Edit here, download the file, commit it.";
+    "Purchasing catalogue / anyone with the link can read it. Unlock with the team password to edit; every change is saved for everyone and signed with your name.";
 })();
 
 /* ---------- load ---------- */
 render();
-setSync("Loading catalog.json", "");
+setSync("Connecting to the shared catalogue", "");
 
-fetch("catalog.json", {cache:"no-store"})
-  .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-  .then(d => {
-    items = Array.isArray(d.items) ? d.items.map(v => ({
-      id: v.id || uid(),
-      name: v.name || "Untitled",
-      category: CATS.indexOf(v.category) > -1 ? v.category : "Print",
-      spec: v.spec || "", note: v.note || ""
-    })) : [];
-    vendors = Array.isArray(d.vendors) ? d.vendors.map(v => ({
-      id: v.id || uid(), itemId: v.itemId,
-      vendor: v.vendor || "Unnamed",
-      channel: v.channel === "appfolio" ? "appfolio" : "outside",
-      unitCost: typeof v.unitCost === "number" ? v.unitCost : null,
-      minQty: typeof v.minQty === "number" ? v.minQty : null,
-      deliveryDays: typeof v.deliveryDays === "number" ? v.deliveryDays : null,
-      link: v.link || "", note: v.note || ""
-    })) : [];
-    loaded = true;
-    const u = $("updated");
-    if (u && d.updated) u.textContent = "catalog.json / " + d.updated;
-    refreshSync();
-    render();
-  })
+loadShared()
+  .then(d => { live = true; applyData(d); })
+  .catch(() => fetch("catalog.json", {cache:"no-store"})
+    .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(d => { live = false; applyData(d); }))
+  .then(() => { loaded = true; refreshSync(); render(); })
   .catch(err => {
     loaded = true;
-    setSync("Could not read catalog.json (" + err.message +
-      "). This page must be served over http, not opened straight from disk.", "warn");
+    setSync("Could not read the catalogue (" + err.message + ").", "warn");
     render();
   });
 

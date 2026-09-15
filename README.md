@@ -10,38 +10,61 @@ Live page: https://alejandromtay06.github.io/dnr-purchasing-catalogue/
 | File | What it is |
 |---|---|
 | `index.html` | The catalogue. Self contained, fonts embedded, no build step |
-| `catalog.json` | The data. This is the only file you edit to change the catalogue |
+| `catalog.json` | The data. Every save from the page becomes a commit to this file |
+| `netlify/functions/catalog.mjs` | The shared save. Reads and commits `catalog.json` through the GitHub API |
+| `netlify.toml` | Tells Netlify where the page and the function live |
 | `README.md` | This |
 | `.nojekyll` | Tells GitHub Pages to serve the files as they are, with no build |
 
-## Publishing it
+## How it is hosted
 
-1. Create the repository and push these three files to the default branch
-2. Settings, Pages, Source: Deploy from a branch
-3. Branch: your default branch, folder: `/ (root)`
-4. Save. The URL appears within a minute
+Two hosts, one repository.
 
-Nothing else. No build, no dependencies, no account needed to read it.
+- **GitHub Pages** serves the page at the live URL above. It redeploys on every
+  commit, including the commits the save function makes.
+- **Netlify** runs the save function at
+  `https://dnr-purchasing-catalogue.netlify.app/api/catalog` and also serves a
+  copy of the page. The page on either host calls that same function.
+
+The function needs two environment variables on the Netlify project
+(Project configuration, Environment variables, scope: Functions):
+
+| Variable | What it is |
+|---|---|
+| `GITHUB_TOKEN` | A fine-grained personal access token with **Contents: Read and write** on this repository only, nothing else |
+| `EDIT_PASSWORD` | The one password the team uses to unlock editing |
+
+Without `GITHUB_TOKEN` the page shows "Shared save is offline" and falls back
+to the download-and-commit workflow below. Without `EDIT_PASSWORD` nobody can
+unlock.
+
+Changing `index.html` or the function: commit to `main`, then redeploy the
+Netlify project (Deploys, Trigger deploy) or push through the Netlify CLI.
+GitHub Pages picks the commit up on its own.
 
 ## How to change the catalogue
 
-The page has working forms, but there is no server behind it, so changes live
-in your browser until you write them back to the repository.
+1. Open the live page and click **Unlock to edit**
+2. Enter your first name and the team password. The name is remembered on
+   that device; the password until the tab is closed
+3. Add or edit items and vendors the normal way
 
-1. Open the live page
-2. Add or edit items and vendors the normal way
-3. Click **Download catalog.json**
-4. In GitHub, open `catalog.json`, click the pencil, paste the new contents,
-   commit
+Every change saves itself about a second later. The status line under the
+filters says "Saved 14:32 by Ana" when it has landed, and everyone else sees
+the new version within a minute, or straight away when they reload.
 
-The page updates within a minute of the commit.
+Each save is a commit on `catalog.json` signed with the editor's name, so the
+repository history is the audit trail: who changed which price, and when.
 
-If two people edit at the same time, the second commit wins. For a catalogue
-that changes a few times a month that is fine. If it starts changing daily,
-move it to a spreadsheet.
+If two people save the same second, the second one is told the catalogue
+changed underneath them and gets the fresh version to re-apply their edit.
 
-You can also edit `catalog.json` directly in GitHub without opening the page.
-The shape is:
+### If the shared save is offline
+
+The page falls back to the old workflow: **Download catalog.json**, then in
+GitHub open `catalog.json`, click the pencil, paste, commit.
+
+You can also edit `catalog.json` directly in GitHub at any time. The shape is:
 
 ```json
 {
